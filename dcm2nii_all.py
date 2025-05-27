@@ -4,7 +4,7 @@ This code is used to convert dcm files in all image data to nii format
 import os
 import subprocess
 
-root_dir = r'D:\ADNI_PET\ADNI'
+root_dir = rf'C:\Users\dongzj\Desktop\MRI-MCI\ADNI'
 result_dict = {}
 
 # Traverse all folders in the root directory
