@@ -4,11 +4,10 @@
 % spm_jobman('initcfg');          % 初始化作业管理器
 % MRI => MNI
 % PET => MRI,PET => ROI
-%MNI = 'mni_icbm152_t1_tal_nlin_asym_09c.nii';
 MNI = 'mni_icbm152_t1_tal_nlin_asym_09c.nii';
-MRI = 'C:\Users\dongz\Desktop\adni_dataset\PET_wr';  
+MRI = 'C:\Users\dongz\Desktop\MRI-ALL';  
 
-outputPrefix = 'wr'; % 是已经完成的文件前缀
+outputPrefix = 'r'; % 是已经完成的文件前缀
 verbose = 0; % 打印SPM输出，检查出错
 
 % 去除PS打印警告，如果你启动了SPM的Graphic,取消注释去除警告，否则不要这么做
