@@ -1,12 +1,12 @@
 % 报错取消下面注释重试（自动将spm路径加入预设路径），出现有关list的错误请重新添加spm路径，或取消注释下面的行
 %或者在命令行输入spm，再重试
-% spm('Defaults', 'fMRI');        % 设置SPM默认参数
-% spm_jobman('initcfg');          % 初始化作业管理器
+spm('Defaults', 'fMRI');        % 设置SPM默认参数
+spm_jobman('initcfg');          % 初始化作业管理器
 
 % MRI => seg MRI (MRI/mri)
 % PET => MRI,PET => MNI(def spital register)
-PET = 'C:\Users\dongz\Desktop\adni_dataset\PET_wr\PET_wr';
-MRI = 'C:\Users\dongz\Desktop\adni_dataset\MRI-P-WR'; %分割后的MRI数据在mri目录下
+PET = 'C:\Users\dongzj\Desktop\TEST';
+MRI = 'C:\Users\dongzj\Desktop\TEST\MRI'; %分割后的MRI数据在mri目录下
 
 outputPrefix = 'wr'; % 是已经完成的文件前缀
 verbose = 0; % 打印SPM输出，检查出错

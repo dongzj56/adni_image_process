@@ -4,7 +4,7 @@ This code is used to convert dcm files in all image data to nii format
 import os
 import subprocess
 
-root_dir = rf'C:\Users\dongzj\Desktop\MRI-MCI\ADNI'
+root_dir = rf'C:\Users\dongzj\Desktop\pet\ADNI'
 result_dict = {}
 
 # Traverse all folders in the root directory
@@ -49,7 +49,7 @@ def Single_Dicom2Nii(DICOM_Dir, Nii_Dir):
     Nii_Dir: The directory path for output NIfTI files
     """
     
-    dcm2niix_path = r'tools\dcm2niix.exe'
+    dcm2niix_path = rf'tools\dcm2niix.exe'
     # Output NIfTI directory
     filename_format = '%i'  # File name format
     bids_sidecar = 'y'  # Generate BIDS sidecar JSON files
