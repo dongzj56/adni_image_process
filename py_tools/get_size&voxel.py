@@ -46,7 +46,11 @@ def print_image_sizes_and_voxels(directory):
                     print(f"File: {file_path} | Unsupported file format")
 
 # 示例目录路径
+<<<<<<< Updated upstream
 directory = rf'C:\Users\dongzj\Desktop\TEST\MRI'
+=======
+directory = rf'C:\Users\dongz\Desktop\test'
+>>>>>>> Stashed changes
 
 # 打印所有影像文件的尺寸和体素大小
 print_image_sizes_and_voxels(directory)
