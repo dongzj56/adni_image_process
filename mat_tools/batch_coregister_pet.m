@@ -5,12 +5,12 @@ spm_jobman('initcfg');          % 初始化作业管理器
 
 % MRI => seg MRI (MRI/mri)
 % PET => MRI,PET => MNI(def spital register)
-PET = 'C:\Users\dongzj\Desktop\TEST';
-MRI = 'C:\Users\dongzj\Desktop\TEST\MRI'; %分割后的MRI数据在mri目录下
+PET = 'F:\ADNI数据集902样本\03-ACPC校正\pet\ADNI';
+MRI = 'F:\ADNI数据集902样本\04-MRI头骨分离结果\MRI\ADNI\mri'; %分割后的MRI数据在mri目录下
 
 outputPrefix = 'wr'; % 是已经完成的文件前缀
 verbose = 0; % 打印SPM输出，检查出错
-interp = 1;
+interp = 4;
 
 % 定义日志文件路径
 logFile = 'err_coregister.log';

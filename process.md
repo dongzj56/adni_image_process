@@ -6,14 +6,14 @@
 ### 1 转换(.dcm)文件为(.nii)格式
 运行`dcm2nii_all.py`可以批量处理ADNI影像数据下载目录中的dcm文件，转为nii格式保存。运行此代码，dcm文件不会删除。
 
-修改`root_dir = r'C:\Users\dongz\Desktop\ADNI_Image_MRI\ADNI'`为影像下载路径后运行。
+修改`root_dir = r'ADNI_Image_MRI\ADNI'`为影像下载路径后运行。
 修改`dcm2niix_path = r'tools\dcm2niix.exe'`为自己的路径。
 
 dcm2niix.exe可前往`https://github.com/rordenlab/dcm2niix/releases`下载，或是在mricron软件resources下查找。
 ### 2 修改数据集存储格式，方便后续调用
 运行`datapath_modif.py`可以更改数据集存储结构，方便后续的数据预处理和模型训练。这个代码不是必须的，可以根据需要选择是否运行。
 
-修改代码中`root_dir = r"C:\Users\dongz\Desktop\ADNI_Image_MRI\ADNI"`为影像下载路径即可。
+修改代码中`root_dir = r"ADNI_Image_MRI\ADNI"`为影像下载路径即可。
 
 ###### 数据集结构
 
@@ -137,8 +137,8 @@ PEI影像为4D，带有多个时间切片，需要先转为3D再处理，提供�
 
 调用时需要修改`normalise_job.m`中的两个参数：
 
-1. Bounding box参数：输出PET图像的体素数量，也就是图像尺寸，我设置的`bb = [-100 -130 -90;100 90 105]`，可以多测试几张PET图像选择合适的参数。
-2. vox size参数：体素大小，大多数论文都是[1 1 1]或[2 2 2]，由于使用的aal模板本身体素大小是1，所以设置`vox = [1 1 1]`。
+1. Bounding box参数：输出PET图像的体素数量，也就是图像尺寸，我设置的`bb = [-84 -103 -79;84 102 90]`，`vox = [1.5 1.5 1.5]`，目的是为了匹配处理后的MRI大小。
+2. vox size参数：体素大小，大多数论文都是[1 1 1]或[2 2 2]，如果使用的aal模板本身体素大小是1，所以设置`vox = [1 1 1]`。
 
 
 ###### 002_S_2010配准前后对比
@@ -180,3 +180,18 @@ PET影像的体素大小（Voxel size）= 1×1×1 mm³，每个体素的值表�
 4. subject_Info是下载影像的csv文件，里面有对应受试者的信息
 5. roi_csv存储ROI计算结果的文件
 
+## 第六步 PET影像头骨去除和平滑
+主要是为了得到能用于深度神经网络训练的PET影像数据
+
+### 1 头骨去除
+直接使用头骨分离处理后的MRI影像，记为i1，然后将需要去除头骨的PET影像记为i2，原理是使用表达式：`i2.*(i1>0)`来去除PET影像中的非脑组织。
+
+可以使用SPM的ImCalc实现这种掩码计算，从而依据MRI头骨分离结果对PET影像进行头骨分离，并保证影像其他区域不受影响。
+
+将上面这一过程写成批量处理脚本：`PET_batch_skull_separation.m`，设置该批量处理脚本中的参数即可。
+
+
+### 2 高斯平滑
+使用SPM的Smooth模块，设置高斯平滑核为6mm即可。
+
+批量处理脚本为：`PET_Smooth.m`

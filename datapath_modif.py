@@ -44,7 +44,7 @@ def delete_all_dirs(root_dir):
                 print(f"Error deleting {entry.path}: {str(e)}")
 
 if __name__ == '__main__':
-    root_dir = rf"C:\Users\dongzj\Desktop\MRI-MCI\ADNI"
+    root_dir = rf"F:\ADNI数据集902样本\02-提取出原图\pet\ADNI"
     id_dirs = find_id_dirs(root_dir)
     print(f"Found {len(id_dirs)} ID directories")
     

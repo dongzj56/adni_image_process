@@ -4,7 +4,7 @@ This code is used to convert dcm files in all image data to nii format
 import os
 import subprocess
 
-root_dir = rf'C:\Users\dongzj\Desktop\pet\ADNI'
+root_dir = rf'F:\ADNI数据集902样本\02-提取出原图\pet\ADNI'
 result_dict = {}
 
 # Traverse all folders in the root directory
@@ -77,7 +77,7 @@ def Single_Dicom2Nii(DICOM_Dir, Nii_Dir):
         # Call dcm2niix to convert
         result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("=" * 100)
-        print(result.stdout.decode())  # Output standard output
+        print(result.stdout.decode('utf-8', errors='replace'))  # Output standard output
         print(f"Converted DICOM files {str(DICOM_Dir)} to NIfTI format.")
     except subprocess.CalledProcessError as e:
         print("=" * 100)
