@@ -4,7 +4,7 @@ spm_jobman('initcfg');          % 初始化作业管理器
 
 p=spm_select(Inf,'.nii');
 %i_type = 't1'; % use default: T1canonical, MRI：t1/t2
-i_type = 'pet'; % use default: T1canonical, MRI：t1/t2
+i_type = 't1'; % use default: T1canonical, MRI：t1/t2
 center_origin = true;
 
 % 打开文件以追加写入（如果文件不存在则创建）

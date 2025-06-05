@@ -1,11 +1,11 @@
 % 报错取消下面注释重试（自动将spm路径加入预设路径），出现有关list的错误请重新添加spm路径，或取消注释下面的行
 %或者在命令行输入spm，再重试
-% spm('Defaults', 'fMRI');        % 设置SPM默认参数
+% spm('Defaults', 'fMRI'AAL);        % 设置SPM默认参数
 % spm_jobman('initcfg');          % 初始化作业管理器
 % MRI => MNI
 % PET => MRI,PET => ROI
-MNI = 'mni_icbm152_t1_tal_nlin_asym_09c.nii';
-MRI = 'C:\Users\dongz\Desktop\MRI-ALL';  
+MNI = 'C:\Users\dongz\Desktop\配准aal\AAL3v2_for_SPM12\AAL3\AAL3v1_1mm.nii';
+MRI = 'E:\ADNI数据集902样本\所用数据\MRI_GM_113_137_113';  
 
 outputPrefix = 'r'; % 是已经完成的文件前缀
 verbose = 0; % 打印SPM输出，检查出错

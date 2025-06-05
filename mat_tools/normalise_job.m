@@ -1,6 +1,6 @@
 function normalise_job(def,source,interp,outputPrefix,verbose)
-    bb = [-84 -102 -79; % 左 侧右 下
-        84 102 89]; % Bounding box
+    bb = [-90 -108 -90; % 左 侧右 下
+        90 108 90]; % Bounding box
     % bb = [-78 -112  -70;
     %         78   76   85]; % Bounding box
 
