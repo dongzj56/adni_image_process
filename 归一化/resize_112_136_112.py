@@ -49,8 +49,8 @@ def batch_crop_directory(input_dir, output_dir):
 
 if __name__ == "__main__":
     # 修改为你的输入和输出文件夹
-    INPUT_DIR  = rf"C:\Users\dongz\Desktop\adni_dataset\PET_113_137_113"               # 裁剪前的 NIfTI 文件夹
-    OUTPUT_DIR = rf"C:\Users\dongz\Desktop\adni_dataset\PET_113_137_113-1"       # 裁剪后文件保存到此文件夹
+    INPUT_DIR  = rf"E:\ADNI数据集902样本\所用数据\PET_113_137_113"               # 裁剪前的 NIfTI 文件夹
+    OUTPUT_DIR = rf"E:\ADNI数据集902样本\所用数据\PET_112_136_112"       # 裁剪后文件保存到此文件夹
 
     batch_crop_directory(INPUT_DIR, OUTPUT_DIR)
     print("全部处理完成。")
