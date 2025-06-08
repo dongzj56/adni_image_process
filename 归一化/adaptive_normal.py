@@ -2,6 +2,18 @@ import os
 import glob
 import numpy as np
 import SimpleITK as sitk
+import os, sys, locale, glob
+from pathlib import Path
+import numpy as np
+import SimpleITK as sitk
+
+# ---- 让当前 Python 进程进入 UTF-8 模式（Windows 专用） ----
+if sys.platform.startswith('win'):
+    os.environ.setdefault('PYTHONUTF8', '1')   # PEP 540/686
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')  # or zh_CN.UTF-8
+    except locale.Error:
+        pass
 
 
 def adaptive_normal(image_path, outpath):
@@ -79,4 +91,4 @@ if __name__ == '__main__':
     # adaptive_normal('example.nii', 'example_norm.nii')
 
     # 目录批处理
-    adaptive_normal_dir(rf'C:\Users\dongz\Desktop\68test\111', rf'C:\Users\dongz\Desktop\68test\111')
+    adaptive_normal_dir(rf'F:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_MNI_1.5mm', rf'F:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_MNI_1.5mm-normal')

@@ -1,10 +1,10 @@
 function normalise_job(def,source,interp,outputPrefix,verbose)
-    bb = [-90 -108 -90; % 左 侧右 下
-        90 108 90]; % Bounding box
+    bb = [-90 -126 -72; % 左 侧右 下
+        90 90 108]; % Bounding box
     % bb = [-78 -112  -70;
     %         78   76   85]; % Bounding box
 
-    vox = [1.5 1.5 1.5]; % vox size
+    vox = [1 1 1]; % vox size
     if nargin < 3
         interp = 1;
     end
