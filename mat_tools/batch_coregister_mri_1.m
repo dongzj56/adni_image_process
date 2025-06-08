@@ -4,8 +4,8 @@
 % spm_jobman('initcfg');          % 初始化作业管理器
 % MRI => MNI
 % PET => MRI,PET => ROI
-MNI = 'C:\Users\dongz\Desktop\配准aal\AAL3v2_for_SPM12\AAL3\AAL3v1_1mm.nii';
-MRI = 'E:\ADNI数据集902样本\所用数据\MRI_GM_113_137_113';  
+MNI = 'C:\Users\dongz\Desktop\配准aal\AAL3v2_for_SPM12\AAL3\AAL3v1.nii';
+MRI = 'C:\Users\dongz\Desktop\配准aal\ALL';  
 
 outputPrefix = 'r'; % 是已经完成的文件前缀
 verbose = 0; % 打印SPM输出，检查出错

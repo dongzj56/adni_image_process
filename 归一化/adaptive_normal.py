@@ -79,4 +79,4 @@ if __name__ == '__main__':
     # adaptive_normal('example.nii', 'example_norm.nii')
 
     # 目录批处理
-    adaptive_normal_dir(rf'C:\Users\dongz\Desktop\MRI_113_137_113', rf'C:\Users\dongz\Desktop\adni_dataset\MRI_113_137_113')
+    adaptive_normal_dir(rf'C:\Users\dongz\Desktop\68test\111', rf'C:\Users\dongz\Desktop\68test\111')
