@@ -47,9 +47,13 @@ def print_image_sizes_and_voxels(directory):
 
 # 示例目录路径
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 directory = rf'C:\Users\dongzj\Desktop\TEST\MRI'
 =======
 directory = rf'C:\Users\dongz\Desktop\test'
+>>>>>>> Stashed changes
+=======
+directory = rf'F:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_MNI_193_229_193'
 >>>>>>> Stashed changes
 
 # 打印所有影像文件的尺寸和体素大小
