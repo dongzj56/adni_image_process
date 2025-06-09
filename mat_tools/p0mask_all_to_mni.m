@@ -6,8 +6,8 @@
 clear; clc;
 
 %% 1. 指定目录
-img_dir = 'F:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_170_256_256';
-def_dir = 'F:\ADNI数据集902样本\04-MRI头骨分离结果\MRI\ADNI\mri';
+img_dir = 'E:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_170_256_256';
+def_dir = 'E:\ADNI数据集902样本\04-MRI头骨分离结果\MRI\ADNI\mri';
 
 %% 2. 收集影像列表（过滤掉 y_ / w_ 等已处理文件）
 img_struct = dir(fullfile(img_dir, '*.nii'));                  % 只处理 .nii

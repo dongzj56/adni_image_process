@@ -96,7 +96,7 @@ if __name__ == "__main__":
     output_dir = input("请输入重采样后文件的保存目录: ")
     
     # 设置目标体素大小
-    new_voxel_size = (2, 2, 2)  # 默认目标体素大小
+    new_voxel_size = (1.5, 1.5, 1.5)  # 默认目标体素大小
     
     # 处理目录中的所有文件
     process_directory(input_dir, output_dir, new_voxel_size)
