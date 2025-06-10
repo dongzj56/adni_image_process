@@ -3,9 +3,9 @@ import nibabel as nib
 import numpy as np
 
 # 定义输入和输出目录
-input_image_dir = rf'C:\Users\dongz\Desktop\sp\original'
-input_mask_dir = rf'C:\Users\dongz\Desktop\sp\p0mask'
-output_dir = rf'C:\Users\dongz\Desktop\sp\output'
+input_image_dir = rf'C:\Users\dongz\Desktop\mask\original'
+input_mask_dir = rf'C:\Users\dongz\Desktop\mask\mri'
+output_dir = rf'C:\Users\dongz\Desktop\mask\output-2'
 
 # 确保输出目录存在
 os.makedirs(output_dir, exist_ok=True)
@@ -26,8 +26,27 @@ for image_filename in os.listdir(input_image_dir):
             # 加载蒙版序列
             mask_sequence = nib.load(mask_path).get_fdata()
 
-            # 结合蒙版序列和原始图像序列，生成输出图像序列
-            output_sequence = original_image * mask_sequence
+            import numpy as np
+            import scipy.ndimage as ndi
+
+            # 1. 阈值得到布尔掩膜（True/False）
+            mask_bool = mask_sequence > 0.15          # bool 类型
+
+            # # 2. 开运算：先腐蚀后膨胀，去除毛刺和孤立点
+            # mask_bool = ndi.binary_opening(mask_bool, structure=np.ones((3,3,3)), iterations=1)
+
+            # # （可选）再做一次 binary_closing 填小孔
+            # mask_bool = ndi.binary_closing(mask_bool, structure=np.ones((3,3,3)), iterations=1)
+
+            # （可选）仅保留最大连通域，防止头皮碎片
+            # labeled, _ = ndi.label(mask_bool)
+            # largest = np.argmax(np.bincount(labeled.ravel())[1:]) + 1
+            # mask_bool = labeled == largest
+
+            # 3. 乘回原图
+            output_sequence = original_image * mask_bool.astype(original_image.dtype)
+
+
 
             # 保存输出图像序列
             output_image = nib.Nifti1Image(output_sequence, affine=orig_nii.affine)
