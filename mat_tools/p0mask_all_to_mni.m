@@ -6,8 +6,8 @@
 clear; clc;
 
 %% 1. 指定目录
-img_dir = 'E:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_170_256_256';
-def_dir = 'E:\ADNI数据集902样本\04-MRI头骨分离结果\MRI\ADNI\mri';
+img_dir = 'E:\ADNI数据集902样本\05-MRI头骨分离\WM';
+def_dir = 'E:\ADNI数据集902样本\04-MRI-CAT12结果\MRI\ADNI\mri';
 
 %% 2. 收集影像列表（过滤掉 y_ / w_ 等已处理文件）
 img_struct = dir(fullfile(img_dir, '*.nii'));                  % 只处理 .nii
@@ -37,7 +37,7 @@ for i = 1:numel(img_struct)
 
     % 写入参数（保持与之前一致，可自行修改）
     matlabbatch{k}.spm.spatial.normalise.write.woptions.bb     = [-90 -126 -72; 90 90 108];
-    matlabbatch{k}.spm.spatial.normalise.write.woptions.vox    = [1 1 1];
+    matlabbatch{k}.spm.spatial.normalise.write.woptions.vox    = [1.5 1.5 1.5];
     matlabbatch{k}.spm.spatial.normalise.write.woptions.interp = 4;
     matlabbatch{k}.spm.spatial.normalise.write.woptions.prefix = 'w';
 end

@@ -34,6 +34,7 @@ else:
                 new_filename = filename[remove_length:]
                 new_file_path = os.path.join(directory, new_filename)
                 
+                
                 # 重命名文件
                 try:
                     shutil.move(file_path, new_file_path)
