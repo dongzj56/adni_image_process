@@ -62,6 +62,6 @@ def adaptive_normal_dir(in_dir: str, out_dir: str):
 
 # --------------------- 示例 ---------------------
 if __name__ == "__main__":
-    src = rf"F:\ADNI数据集902样本\05-MRI头骨分离\MRI_Smooth_2mm"
-    dst = rf"F:\ADNI数据集902样本\05-MRI头骨分离\MRI_Smooth_normal"
+    src = rf"F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\03PET平滑4mm\MNI_1mm"
+    dst = rf"F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\04PET归一化\MNI_1mm"
     adaptive_normal_dir(src, dst)

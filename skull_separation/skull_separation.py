@@ -4,9 +4,9 @@ import nibabel as nib
 import scipy.ndimage as ndi  # 形态学操作需要
 
 # ---------- 0. 路径 ----------
-input_image_dir = rf'E:\ADNI数据集902样本\03-ACPC校正\MRI_170_256_256'
-input_mask_dir  = rf'E:\ADNI数据集902样本\04-MRI-CAT12结果\MRI\ADNI\mri'
-output_dir      = rf'E:\ADNI数据集902样本\05-MRI头骨分离\MRI_170_256_256'
+input_image_dir = rf'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\01PET配准\MNI_1mm'
+input_mask_dir  = rf'F:\ADNI数据集902样本\05-MRI头骨分离\p0original\01配准至MNI\1mm'
+output_dir      = rf'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨\MNI_1mm'
 os.makedirs(output_dir, exist_ok=True)
 
 # ---------- 1. 遍历 ----------

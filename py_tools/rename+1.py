@@ -17,7 +17,7 @@ def add_prefix_to_files(directory: str, prefix: str) -> None:
 
 if __name__ == "__main__":
     # === 修改成你自己的目录和前缀 ===
-    dir_path = rf"F:\ADNI数据集902样本\05-MRI头骨分离\p0original_MNI\MRI"   # 目标文件夹
-    prefix   = "p0original_"                              # 要加在文件名前面的字符
+    dir_path = rf"F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\04PET归一化\MNI_1mm"   # 目标文件夹
+    prefix   = "normal_"                              # 要加在文件名前面的字符
     # ==================================
     add_prefix_to_files(dir_path, prefix)

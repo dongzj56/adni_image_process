@@ -3,9 +3,9 @@
 % 依赖：SPM12
 
 %% 0. —— 配置区 —— 
-petDir = 'F:\ADNI数据集902样本\03-ACPC校正\pet\ADNI';         % PET 影像文件夹（前缀 wr）
-mriDir = 'F:\ADNI数据集902样本\04-MRI头骨分离结果\MRI\ADNI\mri';         % MRI 掩膜文件夹（前缀 wm）
-outDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨';  % 去骨后结果输出目录
+petDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\01PET配准\MNI_2mm';         % PET 影像文件夹（前缀 wr）
+mriDir = 'F:\ADNI数据集902样本\05-MRI头骨分离\p0original\01配准至MNI\2mm';         % MRI 掩膜文件夹（前缀 wm）
+outDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨\MNI_2mm';  % 去骨后结果输出目录
 
 if ~exist(outDir,'dir')
     mkdir(outDir);
@@ -27,7 +27,7 @@ for i = 1:numel(petList)
     subjID = baseName(3:end);
     
     % —— 在 MRI 文件夹里匹配掩膜 wm 文件 —— 
-    maskName = ['wm' subjID '.nii'];
+    maskName = ['p0' subjID '.nii'];
     wmPath   = fullfile(mriDir, maskName);
     if ~exist(wmPath, 'file')
         warning('未找到掩膜文件 %s，跳过 %s', maskName, petName);

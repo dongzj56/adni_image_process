@@ -3,10 +3,11 @@
 % 依赖：SPM12
 
 %% 0. —— 配置区 —— 
-petDir = 'F:\ADNI数据集902样本\05-MRI头骨分离\MRI';      % 放原始 PET .nii 的文件夹
-outDir = 'F:\ADNI数据集902样本\05-MRI头骨分离\MRI_Smooth_2mm'; % 平滑结果输出目录
+petDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨\MNI_1mm';      % 放原始 PET .nii 的文件夹
+outDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\03PET平滑4mm\MNI_1mm'; % 平滑结果输出目录
 
 % 如果输出目录不存在，就新建
+
 if ~exist(outDir,'dir')
     mkdir(outDir);
 end
@@ -25,7 +26,7 @@ for i = 1:numel(petList)
     %% 3. 构建平滑批处理
     matlabbatch = {};
     matlabbatch{1}.spm.spatial.smooth.data   = { [petPath ',1'] };
-    matlabbatch{1}.spm.spatial.smooth.fwhm   = [2 2 2];     % 高斯核大小 :contentReference[oaicite:2]{index=2}
+    matlabbatch{1}.spm.spatial.smooth.fwhm   = [4 4 4];     % 高斯核大小 :contentReference[oaicite:2]{index=2}
     matlabbatch{1}.spm.spatial.smooth.dtype  = 0;
     matlabbatch{1}.spm.spatial.smooth.im     = 0;
     matlabbatch{1}.spm.spatial.smooth.prefix = 'smooth_';

@@ -4,7 +4,7 @@ function normalise_job(def,source,interp,outputPrefix,verbose)
     % bb = [-78 -112  -70;
     %         78   76   85]; % Bounding box
 
-    vox = [2 2 2]; % vox size
+    vox = [1.5 1.5 1.5]; % vox size
     if nargin < 3
         interp = 1;
     end
