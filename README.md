@@ -5,7 +5,9 @@ Click the links below for details:
 
 - 💻 [Code Explanation](Code_Description.md)
 
-This repository provides the preprocessing code for the BRC-MMHF framework.
-(https://github.com/dongzj56/BRC-MMHF.git)
+This repository serves as the official preprocessing pipeline for **BRC-MMHF**.
 
-📧 Email: dongzj56@gmail.com
+To access the main **BRC-MMHF** framework, please visit:
+🔗 [BRC-MMHF Main Repository](https://github.com/dongzj56/BRC-MMHF.git)
+
+📧 **Contact**: dongzj56@gmail.com
