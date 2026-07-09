@@ -5,22 +5,22 @@ function coregister_job(ref,source,interp,outputPrefix,verbose)
     if nargin < 5
         verbose = true;
     end
-    % 创建 matlabbatch 结构体
-    matlabbatch{1}.spm.spatial.coreg.estwrite.ref = {ref}; % 设置参考图像
-    matlabbatch{1}.spm.spatial.coreg.estwrite.source = {source}; % 设置源图像
-    matlabbatch{1}.spm.spatial.coreg.estwrite.other = {''}; % 空白，表示没有其他图像
-    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.cost_fun = 'nmi'; % 使用 NMI 作为成本函数
-    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.sep = [4 2]; % 配准分辨率：4mm 和 2mm
-    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001]; % 容差
-    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.fwhm = [7 7]; % 平滑处理：7mm
-    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.interp = interp; % 四次插值
-    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.wrap = [0 0 0]; % 不进行卷绕
-    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.mask = 0; % 不应用掩膜
-    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.prefix = outputPrefix; % 设置输出文件前缀
-    % 运行任务
-    % 使用 evalc 执行 spm_jobman 命令，抑制打印输出
+    % Create the matlabbatch structure.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.ref = {ref}; % Set reference image.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.source = {source}; % Set source image.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.other = {''}; % Empty value means there are no other images.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.cost_fun = 'nmi'; % Use NMI as the cost function.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.sep = [4 2]; % Registration resolution: 4 mm and 2 mm.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001]; % Tolerance.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.fwhm = [7 7]; % Smoothing: 7 mm.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.interp = interp; % Cubic interpolation.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.wrap = [0 0 0]; % No wrapping.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.mask = 0; % Do not apply a mask.
+    matlabbatch{1}.spm.spatial.coreg.estwrite.roptions.prefix = outputPrefix; % Set output file prefix.
+    % Run the job.
+    % Use evalc to suppress printed output from spm_jobman.
     if verbose
-        spm_jobman('run', matlabbatch); % 执行配准任务
+        spm_jobman('run', matlabbatch); % Run the registration job.
     else
         evalc('spm_jobman(''run'', matlabbatch);');
     end

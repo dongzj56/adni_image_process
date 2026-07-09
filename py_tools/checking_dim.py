@@ -4,55 +4,55 @@ import glob
 
 def check_nifti_dimensions(directory):
     """
-    检查指定目录下所有NIfTI文件的维度信息
+    Check the dimension information of all NIfTI files in the specified directory.
     """
-    # 获取所有.nii和.nii.gz文件
+    # Get all .nii and .nii.gz files.
     file_list = glob.glob(os.path.join(directory, "*.nii")) + \
                 glob.glob(os.path.join(directory, "*.nii.gz"))
 
     if not file_list:
-        print("未找到任何NIfTI文件")
+        print("No NIfTI files found")
         return
 
     dimension_records = {}
     problem_files = []
 
-    print("开始检查NIfTI文件维度...\n")
+    print("Checking NIfTI file dimensions...\n")
     
     for file_path in file_list:
         try:
-            # 加载NIfTI文件
+            # Load the NIfTI file.
             img = nib.load(file_path)
-            dim = img.header['dim'][1:5]  # 获取前4个维度（通常包括3D空间+时间维度）
-            dim = tuple(map(int, dim))    # 转换为整数元组
+            dim = img.header['dim'][1:5]  # Get the first four dimensions, usually 3D space plus time.
+            dim = tuple(map(int, dim))    # Convert to an integer tuple.
             
-            # 记录维度信息
+            # Record dimension information.
             if dim not in dimension_records:
                 dimension_records[dim] = []
             dimension_records[dim].append(os.path.basename(file_path))
             
-            print(f"文件: {os.path.basename(file_path):<30} 维度: {dim}")
+            print(f"File: {os.path.basename(file_path):<30} Dimensions: {dim}")
             
         except Exception as e:
             problem_files.append((file_path, str(e)))
-            print(f"无法读取文件: {os.path.basename(file_path)} - 错误: {str(e)}")
+            print(f"Could not read file: {os.path.basename(file_path)} - Error: {str(e)}")
 
-    # 输出汇总报告
-    print("\n==== 维度汇总 ====")
+    # Print summary report.
+    print("\n==== Dimension Summary ====")
     for idx, (dim, files) in enumerate(dimension_records.items(), 1):
-        print(f"{idx}. 维度 {dim}: {len(files)} 个文件")
-        print("   示例文件: " + ", ".join(files[:3]) + ("..." if len(files)>3 else ""))
+        print(f"{idx}. Dimension {dim}: {len(files)} files")
+        print("   Example files: " + ", ".join(files[:3]) + ("..." if len(files)>3 else ""))
 
-    # 显示问题文件
+    # Show problem files.
     if problem_files:
-        print("\n==== 问题文件 ====")
+        print("\n==== Problem Files ====")
         for idx, (path, err) in enumerate(problem_files, 1):
-            print(f"{idx}. {os.path.basename(path)} - 错误: {err}")
+            print(f"{idx}. {os.path.basename(path)} - Error: {err}")
 
 if __name__ == "__main__":
-    target_dir = input("请输入要检查的目录路径：").strip()
+    target_dir = input("Enter the directory path to check: ").strip()
     
     if not os.path.isdir(target_dir):
-        print("错误：指定的路径不存在或不是目录")
+        print("Error: the specified path does not exist or is not a directory")
     else:
         check_nifti_dimensions(target_dir)

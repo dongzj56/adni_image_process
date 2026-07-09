@@ -1,48 +1,48 @@
 % PET_smooth_batch.m
-% 一键批量对 PET 影像做高斯平滑，结果保存到新的文件夹下
-% 依赖：SPM12
+% Batch-apply Gaussian smoothing to PET images and save results to a new folder.
+% Dependency: SPM12.
 
-%% 0. —— 配置区 —— 
-petDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨\MNI_1mm';      % 放原始 PET .nii 的文件夹
-outDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\03PET平滑4mm\MNI_1mm'; % 平滑结果输出目录
+%% 0. Configuration.
+petDir = 'F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\02PET_skull_stripped\MNI_1mm';      % Folder containing original PET .nii files.
+outDir = 'F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\03PET_smoothing4mm\MNI_1mm'; % Output directory for smoothed results.
 
-% 如果输出目录不存在，就新建
+% Create the output directory if it does not exist.
 
 if ~exist(outDir,'dir')
     mkdir(outDir);
 end
 
-%% 1. 初始化 SPM PET 环境
+%% 1. Initialize the SPM PET environment.
 spm('defaults','fmri');
 spm_jobman('initcfg');
 
-%% 2. 扫描 PET 文件夹下所有 .nii
-petList = dir(fullfile(petDir,'*.nii'));  % 扫描所有 PET 图像 :contentReference[oaicite:1]{index=1}
+%% 2. Scan all .nii files in the PET folder.
+petList = dir(fullfile(petDir,'*.nii'));  % Scan all PET images.
 
 for i = 1:numel(petList)
     petName = petList(i).name;
     petPath = fullfile(petDir, petName);
     
-    %% 3. 构建平滑批处理
+    %% 3. Build the smoothing batch.
     matlabbatch = {};
     matlabbatch{1}.spm.spatial.smooth.data   = { [petPath ',1'] };
-    matlabbatch{1}.spm.spatial.smooth.fwhm   = [4 4 4];     % 高斯核大小 :contentReference[oaicite:2]{index=2}
+    matlabbatch{1}.spm.spatial.smooth.fwhm   = [4 4 4];     % Gaussian kernel size.
     matlabbatch{1}.spm.spatial.smooth.dtype  = 0;
     matlabbatch{1}.spm.spatial.smooth.im     = 0;
     matlabbatch{1}.spm.spatial.smooth.prefix = 'smooth_';
     
-    %% 4. 运行 SPM 批处理
+    %% 4. Run SPM batch processing.
     spm_jobman('run', matlabbatch);
-    fprintf('✓ 已平滑 %s\n', petName);
+    fprintf('Smoothed %s\n', petName);
     
-    %% 5. 移动结果到输出目录
+    %% 5. Move the result to the output directory.
     origSmooth = fullfile(petDir, ['smooth_' petName]);
     newSmooth  = fullfile(outDir, ['smooth_' petName]);
     if exist(origSmooth,'file')
         movefile(origSmooth, newSmooth);
     else
-        warning('未找到平滑结果：%s', origSmooth);
+        warning('Smoothed result not found: %s', origSmooth);
     end
 end
 
-fprintf('全部完成：共处理 %d 个文件，结果保存在 %s\n', numel(petList), outDir);
+fprintf('All done: processed %d files. Results saved in %s\n', numel(petList), outDir);

@@ -12,11 +12,11 @@ function get_pet_data(mask_path,pet_dir,roi_info,subject_info,Vox_mm3,SUVr,cereb
     if nargin < 8 startswith = 'wr'; end
     if nargin < 9 output_csv = 'PET_DATA.csv'; end
 
-    % 初始化参数
+    % Initialize parameters.
     ID = 'Subject ID';
     Injected_dose = 185;  % MBq, FDG-PET Reference ADNI
-    cerebellar_ID = 95:112;  % 小脑区域ID
-    % cerebellar_ID = 95:120;  % 小脑区域ID
+    cerebellar_ID = 95:112;  % Cerebellar region IDs.
+    % cerebellar_ID = 95:120;  % Cerebellar region IDs.
 
     roi_info = load_roi_info('Template/ROITemplate/aal3.csv',1,';');
     header = get_header(roi_info, Vox_mm3, SUVr);
@@ -26,14 +26,14 @@ function get_pet_data(mask_path,pet_dir,roi_info,subject_info,Vox_mm3,SUVr,cereb
             s_info = readtable(subject_info, 'VariableNamingRule', 'preserve', 'TreatAsEmpty', {'NA', 'N/A', ''});
             s_info = s_info(strcmp(s_info.Modality, 'PET'), :);
         else
-            disp('计算SUVr时需要输入subject_info（体重）参数');
+            disp('Calculating SUVr requires the subject_info weight parameter');
             return;
         end
     end
     
-    % 打开输出文件
+    % Open the output file.
     fid = fopen(output_csv, 'w');
-    % 获取nii文件列表
+    % Get the NIfTI file list.
     nii_files = dir(fullfile(pet_dir, [startswith, '*.nii*']));
     
 
@@ -42,16 +42,16 @@ function get_pet_data(mask_path,pet_dir,roi_info,subject_info,Vox_mm3,SUVr,cereb
 
     mask = niftiread(mask_path);
     roi_V = spm_vol(mask_path);
-    data = spm_read_vols(roi_V); % 读取数据，在更改name之前
+    data = spm_read_vols(roi_V); % Read data before changing the name.
     roi_affine  = roi_V.mat;
-    unique_values = unique(mask(mask ~= 0));  % 获取唯一的mask值，排除0
+    unique_values = unique(mask(mask ~= 0));  % Get unique mask values, excluding 0.
     indices = find(data == 1);
     [rows, cols, slices] = ind2sub(size(data), indices);
-    % 如果需要将索引转换为物理空间坐标，可以使用仿射矩阵
-    % 假设你想获取物理坐标 (x, y, z)
+    % Use the affine matrix if indices need to be converted to physical-space coordinates.
+    % Example: get physical coordinates (x, y, z).
     inverse_affine = inv(roi_affine);
     physical_coords = roi_affine * [rows'; cols'; slices'; ones(1, numel(rows))];
-    % physical_coords(1, :) 是 x 坐标，physical_coords(2, :) 是 y 坐标，physical_coords(3, :) 是 z 坐标
+    % physical_coords(1, :) is x, physical_coords(2, :) is y, and physical_coords(3, :) is z.
     voxel_coords = inverse_affine * [physical_coords];
     % intensity = nii(sub2ind(size(nii), rows, cols, slices));
     for i = 1:length(nii_files)
@@ -61,32 +61,32 @@ function get_pet_data(mask_path,pet_dir,roi_info,subject_info,Vox_mm3,SUVr,cereb
 
         nii_filename = nii_files(i).name;
         nii_path = fullfile(pet_dir, nii_filename);
-        nii = niftiread(nii_path);  % 读取NIfTI文件
+        nii = niftiread(nii_path);  % Read the NIfTI file.
 
         indices = find(mask == ci);
 
         
-        % 计算SUVr
+        % Calculate SUVr.
         if SUVr
             [~, sid] = fileparts(nii_filename);
-            sid = sid(length(prefix)+1:end);  % 获取subject ID
+            sid = sid(length(prefix)+1:end);  % Get subject ID.
             weight_idx = strcmp(s_info.(ID), sid);
             if any(weight_idx)
-                weight = s_info.Weight(weight_idx) * 1000;  % 体重以克为单位
+                weight = s_info.Weight(weight_idx) * 1000;  % Weight in grams.
             else
-                disp([sid, ' 没有体重信息，SUVr可能为0']);
+                disp([sid, ' has no weight information. SUVr may be 0']);
             end
             
             sum_ce = 0;
             for ci = cerebellar_ID
                 indices = find(mask == ci);
-                ce_vox_in = nii(indices);  % 获取小脑区域的体素值
+                ce_vox_in = nii(indices);  % Get voxel values in cerebellar regions.
                 sum_ce = sum_ce + sum(ce_vox_in);
             end
             ce_suv = sum_ce / (Injected_dose / weight);
         end
         
-        % 计算每个ROI的平均值和其他特征
+        % Calculate the mean value and other features for each ROI.
         average_values = {};
         for value = fieldnames(roi_info)'
             value = value{1};
@@ -116,13 +116,13 @@ function get_pet_data(mask_path,pet_dir,roi_info,subject_info,Vox_mm3,SUVr,cereb
             end
         end
         
-        % 写入CSV
+        % Write to CSV.
         fprintf(fid, '%s,%s\n', nii_filename, strjoin(average_values, ','));
     end
     
-    % 关闭文件
+    % Close the file.
     fclose(fid);
-    disp(['计算结果已写入 CSV 文件: ', output_csv]);
+    disp(['Results written to CSV file: ', output_csv]);
 end
 
 function roi_info = load_roi_info(roi_csv, header, delimiter, n)
@@ -135,7 +135,7 @@ function roi_info = load_roi_info(roi_csv, header, delimiter, n)
 
     if ~isempty(roi_csv)
         fid = fopen(roi_csv, 'r');
-        % 如果有表头，跳过
+        % Skip the header if present.
         if header
             fgetl(fid);
         end

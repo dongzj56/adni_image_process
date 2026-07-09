@@ -1,15 +1,15 @@
-% 报错取消下面注释重试（自动将spm路径加入预设路径）
-spm('Defaults', 'fMRI');        % 设置SPM默认参数
-spm_jobman('initcfg');          % 初始化作业管理器
+% If an error occurs, uncomment the line below and retry after adding the SPM path.
+spm('Defaults', 'fMRI');        % Set SPM defaults.
+spm_jobman('initcfg');          % Initialize the job manager.
 
 p=spm_select(Inf,'.nii');
 %i_type = 't1'; % use default: T1canonical, MRI：t1/t2
 i_type = 't1'; % use default: T1canonical, MRI：t1/t2
 center_origin = true;
 
-% 打开文件以追加写入（如果文件不存在则创建）
+% Open the log file for writing; create it if it does not exist.
 logFile = 'Failed_auto_reorient.txt';
-fid = fopen(logFile, 'w+'); % 'w' 模式
+fid = fopen(logFile, 'w+'); % Write mode.
 if fid == -1
     error('Cannot open log file: %s', logFile);
 end
@@ -19,7 +19,7 @@ auto_reorient(p,i_type,center_origin,fid)
 
 %%
 function auto_reorient(p,i_type,center_origin,fid) 
-    % 检查输入
+    % Check input.
     if nargin<1 || isempty(p)
         return
     end
@@ -35,7 +35,7 @@ function auto_reorient(p,i_type,center_origin,fid)
     end
 
 
-    %% 指定模板
+    %% Specify template.
     switch lower(i_type)
         case 't1',
             tmpl = fullfile(spm('dir'),'toolbox','OldNorm','T1.nii');
@@ -51,10 +51,10 @@ function auto_reorient(p,i_type,center_origin,fid)
             tmpl = fullfile(spm('dir'),'toolbox','OldNorm','SPECT.nii');
         case 't1canonical', 
             tmpl = fullfile(spm('dir'),'canonical','single_subj_T1.nii');
-        otherwise, error('未知的图像类型')
+        otherwise, error('Unknown image type')
     end
 
-    %读取模板
+    % Read template.
     vg=spm_vol(tmpl);
     flags.regtype='rigid';
     %p=spm_select(inf,'image');
@@ -64,15 +64,15 @@ function auto_reorient(p,i_type,center_origin,fid)
         f=strtrim(p(i,:));
         if center_origin
             %% Set the origin to the center of the image
-            % 将图像ac设置到图像中心.
-            file = deblank(f); %删除路径末尾空白字符
-            st.vol = spm_vol(file);%存储在结构体 st.vol 中
-            vs = st.vol.mat\eye(4);%计算图像空间中的坐标变换矩阵 vs
-            %将变换矩阵 vs 的最后一列（表示平移）设置为图像维度的中心坐标。
-            % st.vol.dim 是图像的维度（例如，[x, y, z]）
+            % Move the image AC point to the image center.
+            file = deblank(f); % Remove trailing whitespace from the path.
+            st.vol = spm_vol(file);% Store image metadata in st.vol.
+            vs = st.vol.mat\eye(4);% Compute the coordinate transform matrix in image space.
+            % Set the last column of vs, which represents translation, to the image center.
+            % st.vol.dim is the image dimension, for example [x, y, z].
             vs(1:3,4) = (st.vol.dim+1)/2; 
-            %用于设置或获取图像空间的信息的函数。这里，它被用来更新图像的空间变换信息。
-            %使用 inv(vs)（vs 的逆矩阵）将图像的空间信息更新到其文件中。
+            % Update the image spatial transform information.
+            % Use inv(vs) to write the updated spatial information to the file.
             spm_get_space(st.vol.fname,inv(vs)); 
         end
         try
@@ -93,15 +93,15 @@ function auto_reorient(p,i_type,center_origin,fid)
             num_err = num_err + 1;
             fprintf('Failed to process file: \n%s\n',f)
             fprintf('Failed to process file: \n%s\n',ME.message)
-            fprintf(fid, 'Failed to process file:\n%s\n', f); % 写入失败信息到文件
-            fprintf(fid, '\n'); % 换行
-            fprintf(fid, repmat('=', 1, 20)); % 写入20个等号
+            fprintf(fid, 'Failed to process file:\n%s\n', f); % Write failure information to the log.
+            fprintf(fid, '\n'); % Newline.
+            fprintf(fid, repmat('=', 1, 20)); % Write 20 equal signs.
         end
     end
     fprintf('Number of file successed to process: %d\n',size(p,1))
     fprintf('Number of file Failed to process: %d\n',num_err)
     delete('temp.nii');
-    % 关闭日志文件
+    % Close the log file.
     fclose(fid);
 end
 

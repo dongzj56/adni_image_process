@@ -1,30 +1,30 @@
 function [] = Fun_Split_4DTo3D(root_dir,output_dir,volume_to_keep)
    
-   % 初始化一个表来存储数据
+   % Initialize a table to store data.
     results = table();
-    % 获取所有的 NIfTI 文件
-    nii_files = dir(fullfile(root_dir, '**', '*.nii'));  % 遍历所有子目录
+    % Get all NIfTI files.
+    nii_files = dir(fullfile(root_dir, '**', '*.nii'));  % Traverse all subdirectories.
 
-    % 遍历每个 NIfTI 文件
+    % Iterate over each NIfTI file.
     fprintf('Processing 4D file...\n');
     for i = 1:length(nii_files)
-        % 获取文件的完整路径
+        % Get the full file path.
         nii_path = fullfile(nii_files(i).folder, nii_files(i).name);
-        % 使用原始文件名的一部分作为新文件名
-        [~, Modality, ~] = fileparts(nii_files(i).folder); % 获取最后一级目录名称
+        % Use part of the original filename as the new filename.
+        [~, Modality, ~] = fileparts(nii_files(i).folder); % Get the last-level directory name.
         m_out_dir = fullfile(output_dir,Modality);
         if ~exist(m_out_dir, 'dir')
-            mkdir(m_out_dir); % 创建文件夹，若已存在则跳过
+            mkdir(m_out_dir); % Create the folder; skip if it already exists.
         end
         
         [~, name, ~] = fileparts(nii_files(i).name);
-        % 加载文件信息
+        % Load file information.
         V = spm_vol(nii_path);
 
-        % 检查是否为 4D 文件
+        % Check whether this is a 4D file.
         if numel(V) > 1
             % fprintf('Processing 4D file: %s\n', nii_path);
-            % 拆分 4D 文件
+            % Split the 4D file.
             Vo = spm_file_split(nii_path);
 
             if volume_to_keep > numel(Vo)
@@ -32,20 +32,20 @@ function [] = Fun_Split_4DTo3D(root_dir,output_dir,volume_to_keep)
                 return
             end
            
-            % 只保留指定卷并删除其他卷
+            % Keep only the specified volume and delete the others.
             for j = 1:numel(Vo) 
-                old_filename = Vo(j).fname;  % 原始文件名
+                old_filename = Vo(j).fname;  % Original filename.
                 if volume_to_keep == 0 && ~isempty(output_dir)
                     [~, name, ~] = fileparts(Vo(j).fname);
-                    new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % 新文件名
+                    new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % New filename.
                     movefile_with_error_handling(old_filename, new_filename)
-                % 只保留指定卷
+                % Keep only the specified volume.
                 elseif  j == volume_to_keep
-                    % 确定输出目录
+                    % Determine the output directory.
                     if isempty(output_dir)
-                        output_dir = nii_files(i).folder;  % 使用原文件目录
+                        output_dir = nii_files(i).folder;  % Use the original file directory.
                     end
-                    new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % 新文件名
+                    new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % New filename.
                     movefile_with_error_handling(old_filename, new_filename)
 
                 else
@@ -54,14 +54,14 @@ function [] = Fun_Split_4DTo3D(root_dir,output_dir,volume_to_keep)
             end
             results = [results; table({name}', {Modality}', 'VariableNames', {'Subject', 'Modality'})];
         else
-            new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % 新文件名
+            new_filename = fullfile(m_out_dir,strcat(name,'.nii'));  % New filename.
             copyfile(nii_path, new_filename);
         end
         
 
     end
     fprintf('Over Processing 4D file...\n');
-    % 将结果写入 CSV 文件
+    % Write results to a CSV file.
     writetable(results, fullfile(output_dir, 'Split_4DTo3D.csv'));
 end
 

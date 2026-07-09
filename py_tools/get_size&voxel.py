@@ -1,25 +1,25 @@
-'''获取目录下图像大小和体素'''
+'''Get image size and voxel spacing for files in a directory.'''
 import os
 import nibabel as nib
 import pydicom
 
 def get_image_size_and_voxel(image_path):
     """
-    获取影像的尺寸和体素大小，支持 NIfTI 和 DICOM 文件。
+    Get image size and voxel spacing. Supports NIfTI and DICOM files.
     """
     if image_path.endswith('.nii') or image_path.endswith('.nii.gz'):
-        # 读取NIfTI图像
+        # Read the NIfTI image.
         img = nib.load(image_path)
-        size = img.shape  # 图像尺寸 (depth, height, width)
-        voxel_size = img.header.get_zooms()  # 获取体素大小 (voxel size)
+        size = img.shape  # Image size (depth, height, width).
+        voxel_size = img.header.get_zooms()  # Voxel spacing.
         return size, voxel_size
     
     elif image_path.endswith('.dcm'):
-        # 读取DICOM图像
+        # Read the DICOM image.
         ds = pydicom.dcmread(image_path)
-        size = (ds.Rows, ds.Columns)  # 返回 DICOM 图像的尺寸 (height, width)
+        size = (ds.Rows, ds.Columns)  # Return DICOM image size (height, width).
         
-        # 对于3D DICOM图像，获取体素大小
+        # Get voxel spacing for 3D DICOM images.
         if 'SpacingBetweenSlices' in ds and 'PixelSpacing' in ds:
             voxel_size = (ds.PixelSpacing[0], ds.PixelSpacing[1], ds.SpacingBetweenSlices)
         else:
@@ -32,7 +32,7 @@ def get_image_size_and_voxel(image_path):
 
 def print_image_sizes_and_voxels(directory):
     """
-    遍历目录并打印所有影像文件的尺寸和体素大小
+    Iterate through a directory and print image size and voxel spacing for all image files.
     """
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -45,16 +45,8 @@ def print_image_sizes_and_voxels(directory):
                 else:
                     print(f"File: {file_path} | Unsupported file format")
 
-# 示例目录路径
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-directory = rf'C:\Users\dongzj\Desktop\TEST\MRI'
-=======
+# Example directory path.
 directory = rf'C:\Users\dongz\Desktop\test'
->>>>>>> Stashed changes
-=======
-directory = rf'F:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_MNI_193_229_193'
->>>>>>> Stashed changes
 
-# 打印所有影像文件的尺寸和体素大小
+# Print image size and voxel spacing for all image files.
 print_image_sizes_and_voxels(directory)

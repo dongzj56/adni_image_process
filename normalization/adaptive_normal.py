@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import SimpleITK as sitk
 
-# ---- Windows 下强制 UTF-8，防乱码 ----
+# ---- Force UTF-8 on Windows to avoid encoding issues. ----
 if sys.platform.startswith("win"):
     os.environ.setdefault("PYTHONUTF8", "1")
     try:
@@ -15,31 +15,31 @@ if sys.platform.startswith("win"):
 def adaptive_normal(image_path: str, outpath: str, eps: float = 1e-6) -> str:
     """
     Robust intensity normalisation to [-1, 1] using 0.1%–99.9% quantiles.
-    NaN / ±Inf 会被视为背景 (-1)，避免污染分位统计。
+    NaN / +/-Inf values are treated as background (-1) to avoid corrupting percentile statistics.
     """
-    # 读取影像并转 float32
+    # Read the image and convert it to float32.
     img = sitk.ReadImage(image_path)
     arr = sitk.GetArrayFromImage(img).astype(np.float32)
 
-    # ① 将 NaN、Inf 映射为 -1（背景）
+    # Map NaN and Inf to -1 as background.
     arr[~np.isfinite(arr)] = -1.0
 
-    # ② 前景体素（>0）
+    # Foreground voxels (>0).
     fg = arr[arr > 0]
-    if fg.size == 0:                               # 整幅全背景
+    if fg.size == 0:                               # Entire image is background.
         print(f"[WARN] All-zero image: {image_path}")
         sitk.WriteImage(img, outpath)
         return os.path.abspath(outpath)
 
-    # ③ 0.1%–99.9% 分位
+    # 0.1%-99.9% percentiles.
     lo, hi = np.percentile(fg, [0.1, 99.9])
-    std = max((hi - lo) / 2.0, eps)               # 加 ε 防除 0
+    std = max((hi - lo) / 2.0, eps)               # Add epsilon to avoid division by zero.
     mean = (hi + lo) / 2.0
 
-    # ④ 归一化并截断到 [-1,1]
+    # Normalize and clip to [-1, 1].
     arr = np.clip((arr - mean) / std, -1.0, 1.0)
 
-    # ⑤ 写回 NIfTI，保持空间信息
+    # Write back to NIfTI while preserving spatial information.
     out_img = sitk.GetImageFromArray(arr)
     out_img.CopyInformation(img)
     sitk.WriteImage(out_img, outpath)
@@ -48,7 +48,7 @@ def adaptive_normal(image_path: str, outpath: str, eps: float = 1e-6) -> str:
 
 def adaptive_normal_dir(in_dir: str, out_dir: str):
     """
-    批量处理目录下所有 .nii / .nii.gz
+    Batch-process all .nii / .nii.gz files in a directory.
     """
     os.makedirs(out_dir, exist_ok=True)
     nii_list = glob.glob(os.path.join(in_dir, "*.nii*"))
@@ -60,8 +60,8 @@ def adaptive_normal_dir(in_dir: str, out_dir: str):
         print(f"Processed: {fname}  →  {out_path}")
 
 
-# --------------------- 示例 ---------------------
+# --------------------- Example ---------------------
 if __name__ == "__main__":
-    src = rf"F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\03PET平滑4mm\MNI_1mm"
-    dst = rf"F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\04PET归一化\MNI_1mm"
+    src = rf"F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\03PET_smoothing4mm\MNI_1mm"
+    dst = rf"F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\04PET_normalized\MNI_1mm"
     adaptive_normal_dir(src, dst)

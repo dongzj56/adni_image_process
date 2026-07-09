@@ -1,20 +1,20 @@
 import os
 import nibabel as nib
 
-# 设置需要检查的目录路径（替换成你的目标目录）
-target_dir = "D:\ADNI_PET\ADNI"
+# Directory path to check. Replace this with your target directory.
+target_dir = r"D:\ADNI_PET\ADNI"
 
-# 遍历目录中的所有文件
+# Iterate over all files in the directory.
 for filename in os.listdir(target_dir):
-    # 检查文件扩展名是否为NIfTI格式
+    # Check whether the file extension is a NIfTI format.
     if filename.endswith((".nii", ".nii.gz")):
         file_path = os.path.join(target_dir, filename)
         
         try:
-            # 加载NIfTI文件（仅读取头信息以节省内存）
+            # Load the NIfTI file, reading only header information to save memory.
             img = nib.load(file_path)
             
-            # 检查维度是否为4D
+            # Check whether the image is 4D.
             if len(img.shape) == 4:
                 print(f"4D image found: {filename}")
                 

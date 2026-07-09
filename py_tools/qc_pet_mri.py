@@ -2,19 +2,19 @@
 """
 qc_pet_mri.py
 --------------
-自动批量质量检测脚本，评估配准后的 MRI (wT1) 与 PET (wrPET) 是否对齐。
+Automatic batch QC script for assessing whether registered MRI (wT1) and PET (wrPET) images are aligned.
 
-依赖：
+Dependencies:
     pip install nibabel numpy scipy pandas
 
-用法示例：
+Example:
     python qc_pet_mri.py --mri_dir /path/to/MRI --pet_dir /path/to/PET \
                          --mri_prefix w --pet_prefix wr \
                          --dice_th 0.75 --dist_th 5 --mi_bins 64
 
-输出：
-    1. qc_metrics.csv   —— 每个受试者的 Dice、重心距离、互信息、是否fail
-    2. 在终端打印失配病例列表
+Outputs:
+    1. qc_metrics.csv   -- Dice, centroid distance, mutual information, and failure flag for each subject.
+    2. A list of failed alignment cases printed in the terminal.
 """
 
 import argparse

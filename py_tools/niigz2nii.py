@@ -4,33 +4,33 @@ import shutil
 
 def decompress_nii_gz(input_dir):
     """
-    解压目录下所有.nii.gz文件为.nii文件
-    :param input_dir: 输入目录路径
+    Decompress all .nii.gz files in a directory to .nii files.
+    :param input_dir: Input directory path.
     """
-    # 遍历目录下所有文件
+    # Iterate over all files in the directory.
     for filename in os.listdir(input_dir):
         if filename.endswith(".nii.gz"):
-            # 构造完整输入路径
+            # Build the full input path.
             gz_path = os.path.join(input_dir, filename)
             
-            # 构造输出文件名（去掉.gz后缀）
-            nii_filename = filename[:-3]  # 移除最后的3个字符（.gz）
+            # Build the output filename by removing the .gz suffix.
+            nii_filename = filename[:-3]  # Remove the final three characters (.gz).
             nii_path = os.path.join(input_dir, nii_filename)
             
-            # 解压文件
+            # Decompress the file.
             try:
                 with gzip.open(gz_path, 'rb') as f_in:
                     with open(nii_path, 'wb') as f_out:
                         shutil.copyfileobj(f_in, f_out)
-                print(f"已解压: {filename} -> {nii_filename}")
+                print(f"Decompressed: {filename} -> {nii_filename}")
             except Exception as e:
-                print(f"解压失败: {filename} | 错误: {str(e)}")
+                print(f"Decompression failed: {filename} | Error: {str(e)}")
 
 if __name__ == "__main__":
-    target_dir = input("请输入目录路径: ").strip()
+    target_dir = input("Enter directory path: ").strip()
     
     if os.path.exists(target_dir) and os.path.isdir(target_dir):
         decompress_nii_gz(target_dir)
-        print("解压完成！")
+        print("Decompression complete.")
     else:
-        print("错误：目录不存在或路径无效")
+        print("Error: directory does not exist or path is invalid")

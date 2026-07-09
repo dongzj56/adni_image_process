@@ -3,23 +3,23 @@ from pathlib import Path
 
 def compress_nii_files(directory):
     """
-    压缩指定目录下的所有.nii文件为.nii.gz格式（无损压缩）
-    参数:
-        directory (str): 目标目录路径
+    Compress all .nii files in the specified directory to .nii.gz format.
+    Args:
+        directory (str): Target directory path.
     """
     base_dir = Path(directory)
     
-    # 遍历目录下所有.nii文件
+    # Iterate over all .nii files in the directory.
     for nii_file in base_dir.glob('*.nii'):
         if not nii_file.is_file():
-            continue  # 跳过非文件对象（如目录）
+            continue  # Skip non-file objects, such as directories.
         
-        # 构造压缩文件路径
+        # Build the compressed output path.
         gz_path = nii_file.with_suffix('.nii.gz')
         
-        # 分块读写以支持大文件
+        # Read and write in chunks to support large files.
         with open(nii_file, 'rb') as f_in, gzip.open(gz_path, 'wb') as f_out:
-            while chunk := f_in.read(4096 * 1024):  # 每次读取4MB，减少内存占用
+            while chunk := f_in.read(4096 * 1024):  # Read 4 MB each time to reduce memory use.
                 f_out.write(chunk)
         
         print(f"Compression complete: {nii_file.name} -> {gz_path.name}")

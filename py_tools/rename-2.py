@@ -1,53 +1,52 @@
-'''用于重命名目录下所有文件的脚本
-去除文件名后缀'''
+'''Rename all files in a directory by removing a filename suffix.'''
 import os
 import shutil
 
-# 从用户输入获取目录路径
-directory = input("请输入目录路径: ")
-# 去除可能的引号
+# Get the directory path from user input.
+directory = input("Enter directory path: ")
+# Remove possible quotes.
 directory = directory.strip('"').strip("'")
 
-# 获取要去除的字符长度
+# Get the number of trailing characters to remove.
 try:
-    remove_length = int(input("请输入要从文件名末尾去除的字符长度: "))
+    remove_length = int(input("Enter the number of trailing characters to remove from filenames: "))
     if remove_length < 0:
-        print("字符长度必须为正整数，将使用默认值0")
+        print("The character length must be a positive integer. Using default value 0.")
         remove_length = 0
 except ValueError:
-    print("输入无效，将使用默认值0")
+    print("Invalid input. Using default value 0.")
     remove_length = 0
 
-# 确保目录存在
+# Ensure the directory exists.
 if not os.path.exists(directory):
-    print(f"目录 {directory} 不存在！")
+    print(f"Directory {directory} does not exist.")
 else:
-    # 遍历目录中的所有文件
+    # Iterate over all files in the directory.
     for filename in os.listdir(directory):
-        # 获取完整的文件路径
+        # Get the full file path.
         file_path = os.path.join(directory, filename)
         
-        # 检查是否为文件（而非目录）
+        # Check whether this is a file rather than a directory.
         if os.path.isfile(file_path):
-            # 如果文件名长度足够长
+            # Continue if the filename is long enough.
             if len(filename) > 4:
-                # 分离文件名和后缀
+                # Split the filename and extension.
                 name, ext = os.path.splitext(filename)
-                # 如果文件名长度大于要去除的长度
+                # Remove trailing characters if the stem is long enough.
                 if len(name) > remove_length:
-                    # 去掉文件名的最后指定个字符
+                    # Remove the specified number of trailing characters from the filename stem.
                     new_filename = name[:-remove_length] + ext
                     new_file_path = os.path.join(directory, new_filename)
                     
-                    # 重命名文件
+                    # Rename the file.
                     try:
                         shutil.move(file_path, new_file_path)
-                        print(f"已重命名: {filename} -> {new_filename}")
+                        print(f"Renamed: {filename} -> {new_filename}")
                     except Exception as e:
-                        print(f"重命名 {filename} 时出错: {e}")
+                        print(f"Error renaming {filename}: {e}")
                 else:
-                    print(f"跳过 {filename}，因为文件名(不含后缀)长度不足")
+                    print(f"Skipped {filename}: filename stem is too short")
             else:
-                print(f"跳过 {filename}，因为文件名长度不足")
+                print(f"Skipped {filename}: filename is too short")
     
-    print("重命名操作完成！")
+    print("Rename operation complete.")

@@ -1,175 +1,174 @@
-# ADNI 影像预处理-分析代码总览  
-> 面向 **AD/MCI vs. NC** 研究的一整套 MRI-PET 预处理 + QC + 统计工作流  
-> MATLAB-SPM 与 纯 Python/ITK 双栈并行，方便在 Windows-MATLAB 和 Linux-Docker 环境间切换。
+# ADNI Image Preprocessing and Analysis Code Overview
+> A complete MRI-PET preprocessing, QC, and statistical workflow for **AD/MCI vs. NC** studies.
+> The project maintains parallel MATLAB-SPM and pure Python/ITK pipelines, making it easy to switch between Windows-MATLAB and Linux-Docker environments.
 
 ---
 
-## 1. 目录总览
+## 1. Directory Overview
 
-├─mat_tools/ # MATLAB-SPM 批处理脚本
+├─mat_tools/ # MATLAB-SPM batch-processing scripts
 
-├─normalization/ # PET/MRI 强度归一化（Python）
+├─normalization/ # PET/MRI intensity normalization (Python)
 
-├─py_tools/ # 通用 Python 影像处理脚本
+├─py_tools/ # General-purpose Python image-processing scripts
 
-├─skull_separation/ # PET 去颅骨（Python 单/批处理）
+├─skull_separation/ # PET skull stripping (Python single-case/batch processing)
 
-└─utils/ # 模板、字典、转换工具等
-
-
----
-
-## 2. `mat_tools/` —— SPM 批量脚本
-
-| 文件 | 作用 | 典型输入 → 输出 |
-|------|------|----------------|
-| `batch_coregister_mri.m` | **MRI → MNI 配准** | 原始 T1 → rT1 |
-| `batch_coregister_pet.m` | **PET → MRI 配准**，包含normallization操作 | PET → wrPET |
-| `batch_norm_MRI_only.m` | 仅对 MRI 做 SPM **Normalization** | T1 → wrT1 |
-| `coregister_job.m` | 配准通用子函数，被 `batch_coregister_*` 调用 | — |
-| `normalise_job.m` | SPM Normalise 的低层封装 | — |
-| `PET_batch_skull_separation.m` | 调用 `imcalc`：`PET×(MRI>0)` 批量PET头骨分离 | wrPET + p0mask → skullfree_wrPET |
-| `Smooth.m` | 高斯平滑（自定义FWHM平滑核） | skullfree_* → s6_skullfree_* |
-| `PET_Intensity.m` | 统计 & 写入 PET 全局强度 | PET → `.csv` |
-| `Fun_Split_4DTo3D.m` / `Main_Fun_Split_4DTo3D.m` | 将 4D fMRI/NIfTI 切为 3D | 4D → 多个 3D |
-| `p0mask_all_to_mni.m` | 将 CAT12 `p0*` 掩膜批量变换到 MNI（自定义体素和分辨率大小） | p0mask → wp0mask |
-| `Reorient.m` / `spm_auto_reorient.m` | 半自动对齐 AC-PC 线，修 header | 原始 → r* |
-| `Reslice_ROI.m` | 将 atlas/ROI 重采样到被试空间 | ROI → Reslice_ROI |
-| `err_*.log`, `*.ps` | 批处理错误、SPM 图形输出信息等 | — |
-
----
-
-## 3. `skull_separation/` —— 去颅骨-快速处理 & float32精度（Python）
-
-| 文件 | 说明 |
-|------|------|
-| `skull_separation-single.py` | 单例：`PET.nii` + `p0mask.nii` → `PET_brain.nii` |
-| `skull_separation.py` | **批量版**，可指定输入/输出目录并多线程。|
-| `QC.py` | 计算去骨前后体素分布、体积差、生成直方图。|
-
->与 `mat_tools/PET_batch_skull_separation.m` 区别：  
-> - **Python** 版保持 `float32`，可接着做 NumPy/torch 运算，但是存储空间占用大；  
-> - 不会自动重采样，PET 与掩膜需同空间，也就是先配准PET和MRI，再对PET去头骨；  
-> - 可选 `binary_opening` / `largest_component` 做形态学清理（代码中有，默认不做）。
+└─utils/ # Templates, dictionaries, conversion tools, etc.
 
 
 ---
 
-## 4. `normalization/` —— PET/MRI 强度归一化
+## 2. `mat_tools/` -- SPM Batch Scripts
 
-| 文件 | 功能简述 |
-|------|----------|
-| `adaptive_normal.py` | **鲁棒线性归一化**：0.1%–99.9% 分位映射到 \[-1,1]，并自动把 NaN / ±Inf 当背景处理。|
-| `check.py` | 逐例打印归一化前后最小值/最大值，生成 QC 表。|
-| `size_check.py` | 快捷统计文件夹内所有 NIfTI 的维度 & 体素尺寸。|
-| `nii_check_results.txt` | 上述检查脚本输出的汇总。|
+| File | Purpose | Typical Input -> Output |
+|------|---------|--------------------------|
+| `batch_coregister_mri.m` | **MRI -> MNI registration** | Raw T1 -> rT1 |
+| `batch_coregister_pet.m` | **PET -> MRI registration**, including normalization | PET -> wrPET |
+| `batch_norm_MRI_only.m` | Run SPM **Normalization** on MRI only | T1 -> wrT1 |
+| `coregister_job.m` | General registration helper called by `batch_coregister_*` | -- |
+| `normalise_job.m` | Low-level wrapper for SPM Normalise | -- |
+| `PET_batch_skull_separation.m` | Calls `imcalc`: `PET x (MRI > 0)` for batch PET skull stripping | wrPET + p0mask -> skullfree_wrPET |
+| `Smooth.m` | Gaussian smoothing with a custom FWHM kernel | skullfree_* -> s6_skullfree_* |
+| `PET_Intensity.m` | Compute and write PET global intensity | PET -> `.csv` |
+| `Fun_Split_4DTo3D.m` / `Main_Fun_Split_4DTo3D.m` | Split 4D fMRI/NIfTI into 3D volumes | 4D -> multiple 3D files |
+| `p0mask_all_to_mni.m` | Batch-transform CAT12 `p0*` masks to MNI space with custom voxel size and resolution | p0mask -> wp0mask |
+| `Reorient.m` / `spm_auto_reorient.m` | Semi-automatically align the AC-PC line and correct the header | Raw -> r* |
+| `Reslice_ROI.m` | Resample atlas/ROI files into subject space | ROI -> Reslice_ROI |
+| `err_*.log`, `*.ps` | Batch-processing errors, SPM graphical output, etc. | -- |
+
+---
+
+## 3. `skull_separation/` -- Fast Skull Stripping with float32 Precision (Python)
+
+| File | Description |
+|------|-------------|
+| `skull_separation-single.py` | Single-case script: `PET.nii` + `p0mask.nii` -> `PET_brain.nii` |
+| `skull_separation.py` | **Batch version** with configurable input/output directories and multithreading. |
+| `QC.py` | Computes voxel distributions before and after skull stripping, volume differences, and histograms. |
+
+> Differences from `mat_tools/PET_batch_skull_separation.m`:
+> - The **Python** version preserves `float32`, which is convenient for later NumPy/torch processing, but it uses more storage space.
+> - It does not resample automatically. PET and the mask must already be in the same space; in other words, register PET and MRI first, then skull-strip PET.
+> - Optional `binary_opening` / `largest_component` morphological cleanup is included in the code but disabled by default.
 
 
 ---
 
-## 5. `py_tools/` —— 通用 Python 工具箱
+## 4. `normalization/` -- PET/MRI Intensity Normalization
 
-> 所有与 NIfTI/DICOM 操作、空间校准、重采样、数据 QC 以及文件命名相关的 **Python 脚本**。  
-> **依赖**：Python 3.9+、Nibabel、SimpleITK、NumPy、Pandas、scikit-image 等（各脚本头部已注明）。
-
----
-
-### （1）路径与文件管理
-
-| 脚本 | 功能 |
-|------|------|
-| **`datapath_modif.py`** | 统一重写数据根目录（如换服务器后批量调整路径）。支持：<br>• JSON/YAML 配置批量替换<br>• 递归扫描 CSV/TSV & 更新列中路径 |
-| **`search_4D.py`** | 在多层目录中寻找 4D NIfTI（维度 ≥ 4），输出列表或复制到指定文件夹 |
-| **`rename-1.py`** | 批量重命名脚本，供其他脚本调处理后保存结果时调用。示例：`sub-IMG_001.nii → IMG_001.nii` |
-| **`rename-2.py`** | 批量重命名脚本，供其他脚本调处理后保存结果时调用。示例：`IMG_001-smooth.nii → IMG-001.nii` |
-| **`rename+1.py`** | 批量重命名脚本，供其他脚本调处理后保存结果时调用。示例：`IMG_001.nii → normal_IMG-001.nii` |
-
----
-
-### （2）格式转换
-
-| 脚本 | 作用 |
-|------|------|
-| **`dcm2nii_all.py`** | 批量调用 **dcm2niix** 将 DICOM 转 NIfTI，自动按受试者/时间点分目录保存 |
-| **`nii2gz.py`** | `.nii -> .nii.gz` 批处理单文件转换，保持 header 不变 |
-| **`niigz2nii.py`** | `.nii.gz -> .nii` 批处理单文件转换，保持 header 不变 |
-
----
-
-### （3）图像尺寸 / 体素检查
-
-| 脚本 | 功能 |
-|------|------|
-| **`get_size&voxel.py`** | 对文件夹内 NIfTI 逐一读取 **体素尺寸(spacing)** 与 **矩阵大小(shape)**，汇总成 CSV |
-| **`checking_dim.py`** | 快速检测是否有维度不一致的异常文件；可设定允许误差（如 ±1 像素） |
-| **`check_resample_image.py`** | 验证重采样前后 header：spacing、origin、direction 是否匹配；打印差异并生成报告 |
-
----
-
-### （4）配准 / 重采样 / 预处理
-
-| 脚本 | 说明 |
-|------|------|
-| **`register_pet2mri.py`** | **SimpleITK** 互信息配准：将 PET 刚性对齐到 MRI，输出变换矩阵 + 对齐后影像 |
-| **`resample.py`** | 按 **目标 spacing** 重采样（线性 / 最近邻 / B-Spline 自选），指定图像大小和体素，可以用于去除背景黑边 |
-| **`resize.py`** | 按 **目标 体素**（如 1mm、1.5mm）重采样；自动调整图像的大小 |
-| **`N4_Bias_correction.py`** | ITK 实现的 **N4 偏场校正**：去除 MRI 低频非均匀性 |
-| **`ac_pc.py`** | 利用 Otsu + 中线投影，估算 AC-PC 点并改写 affine，使大脑水平。适合在无 MATLAB 环境下快速 Reorient |
-
----
-
-### （5）质量控制（QC）
-
-| 脚本 | 描述 |
-|------|------|
-| **`PET_Intensity.py`** | 统计 PET 全局平均 SUV 或总 counts，并写入 `PET_DATA.csv` |
-| **`qc_pet_mri.py`** | 生成 PET-MRI 叠加 PNG、计算互信息/SSIM，直观检查配准效果 |
-| **`QC_Check.py`** | 综合 QC：<br>1. 读取多项指标（尺寸、spacing、强度范围、掩膜体积）<br>2. 规则判定 PASS/FAIL<br>3. 输出彩色 HTML 报告 |
-
----
-
-## 6. `utils/` —— 模板、字典、转换工具等
-
-| 类别 | 典型文件 | 说明 |
-|------|----------|------|
-| 模板 & Atlas | `mni_icbm152_...nii`、`aal3.nii`、`Reslice_aal3.nii` | MNI 标准脑、AAL3 对应不同分辨率 |
-| 字典 | `.csv`| 大脑模板、大脑图谱的字典说明文件 |
-| 转换工具 | `dcm2niix.exe` | DICOM→NIfTI 转换工具 |
+| File | Brief Description |
+|------|-------------------|
+| `adaptive_normal.py` | **Robust linear normalization**: maps the 0.1%-99.9% percentiles to \[-1, 1] and automatically treats NaN / +/-Inf as background. |
+| `check.py` | Prints the minimum/maximum values before and after normalization for each case and generates a QC table. |
+| `size_check.py` | Quickly summarizes the dimensions and voxel sizes of all NIfTI files in a folder. |
+| `nii_check_results.txt` | Summary output from the checking scripts above. |
 
 
 ---
 
-## 7. 注意事项
+## 5. `py_tools/` -- General-Purpose Python Toolbox
+
+> Python scripts for NIfTI/DICOM operations, spatial calibration, resampling, data QC, and file naming.
+> **Dependencies**: Python 3.9+, Nibabel, SimpleITK, NumPy, Pandas, scikit-image, etc. Dependencies are also noted at the top of each script.
+
 ---
 
-**虚拟环境**：建议为 Python 工具单独建 Conda 环境 `conda env create -f env_mri.yml`，避免系统包冲突。  
+### (1) Path and File Management
 
-**推荐工作链**
+| Script | Function |
+|--------|----------|
+| **`datapath_modif.py`** | Uniformly rewrites the data root directory, for example when paths need to be updated after moving to a new server. Supports:<br>- Batch replacement using JSON/YAML configuration<br>- Recursive scanning of CSV/TSV files and updating path columns |
+| **`search_4D.py`** | Searches multi-level directories for 4D NIfTI files (dimension >= 4), then outputs a list or copies them to a target folder. |
+| **`rename-1.py`** | Batch renaming script used by other scripts when saving processed results. Example: `sub-IMG_001.nii -> IMG_001.nii` |
+| **`rename-2.py`** | Batch renaming script used by other scripts when saving processed results. Example: `IMG_001-smooth.nii -> IMG-001.nii` |
+| **`rename+1.py`** | Batch renaming script used by other scripts when saving processed results. Example: `IMG_001.nii -> normal_IMG-001.nii` |
 
-1. **DICOM→NIfTI** (`dcm2niix.exe` / `dcm2nii_all.py`)  
-2. **初步 Reorient** (`spm_auto_reorient.m` → `Reorient.m`)  
-3. **MRI → MNI / PET → MRI 输出 wr*** (`batch_coregister_*`, `batch_norm_MRI_only.m`)  
-4. **CAT12 分割** 生成 `p0*` (脑掩膜)、`y*` (到MNI空间变形场)  
-5. **MRI&PET 去颅骨** 任选  
-   - SPM ：`PET_batch_skull_separation.m`  
-   - Python ：`skull_separation.py`   
-6. **平滑** PET: `PET_Smooth.m` (6 mm)；MRI: 自行选 2 mm/4 mm  
-7. **强度归一化 & 调整大小** `adaptive_normal.py` → `resize.py` 
-8. **质量控制** `QC.py`, `QC_Check.py`, `qc_pet_mri.py` 
+---
+
+### (2) Format Conversion
+
+| Script | Purpose |
+|--------|---------|
+| **`dcm2nii_all.py`** | Batch-calls **dcm2niix** to convert DICOM to NIfTI and automatically save files by subject/timepoint directories. |
+| **`nii2gz.py`** | Batch conversion from `.nii` to `.nii.gz` for single files while preserving the header. |
+| **`niigz2nii.py`** | Batch conversion from `.nii.gz` to `.nii` for single files while preserving the header. |
+
+---
+
+### (3) Image Size / Voxel Checks
+
+| Script | Function |
+|--------|----------|
+| **`get_size&voxel.py`** | Reads the **voxel spacing** and **matrix size (shape)** for each NIfTI file in a folder and summarizes them into a CSV file. |
+| **`checking_dim.py`** | Quickly detects abnormal files with inconsistent dimensions; an allowed tolerance can be configured, such as +/-1 pixel. |
+| **`check_resample_image.py`** | Verifies the header before and after resampling: spacing, origin, and direction. It prints differences and generates a report. |
+
+---
+
+### (4) Registration / Resampling / Preprocessing
+
+| Script | Description |
+|--------|-------------|
+| **`register_pet2mri.py`** | **SimpleITK** mutual-information registration: rigidly aligns PET to MRI and outputs the transformation matrix plus the aligned image. |
+| **`resample.py`** | Resamples according to a **target spacing** with selectable interpolation methods (linear / nearest neighbor / B-Spline). The image size and voxel settings can be specified, which can also be used to remove black background margins. |
+| **`resize.py`** | Resamples according to a **target voxel size** such as 1 mm or 1.5 mm and automatically adjusts the image size. |
+| **`N4_Bias_correction.py`** | ITK-based **N4 bias-field correction** to remove low-frequency MRI intensity inhomogeneity. |
+| **`ac_pc.py`** | Estimates AC-PC points using Otsu thresholding and midline projection, then rewrites the affine so the brain is horizontally aligned. This is useful for quick reorientation without MATLAB. |
+
+---
+
+### (5) Quality Control (QC)
+
+| Script | Description |
+|--------|-------------|
+| **`PET_Intensity.py`** | Computes the global mean SUV or total counts for PET and writes the result to `PET_DATA.csv`. |
+| **`qc_pet_mri.py`** | Generates PET-MRI overlay PNG images and computes mutual information/SSIM to visually check registration quality. |
+| **`QC_Check.py`** | Comprehensive QC:<br>1. Reads multiple metrics, including size, spacing, intensity range, and mask volume<br>2. Applies rule-based PASS/FAIL decisions<br>3. Outputs a colored HTML report |
+
+---
+
+## 6. `utils/` -- Templates, Dictionaries, Conversion Tools, etc.
+
+| Category | Typical Files | Description |
+|----------|---------------|-------------|
+| Templates & Atlases | `mni_icbm152_...nii`, `aal3.nii`, `Reslice_aal3.nii` | MNI standard brain and AAL3 templates at different resolutions |
+| Dictionaries | `.csv` | Dictionary files describing brain templates and brain atlases |
+| Conversion tools | `dcm2niix.exe` | DICOM-to-NIfTI conversion tool |
+
+
+---
+
+## 7. Notes
+---
+
+**Virtual environment**: It is recommended to create a separate Conda environment for the Python tools with `conda env create -f env_mri.yml` to avoid conflicts with system packages.
+
+**Recommended Workflow**
+
+1. **DICOM -> NIfTI** (`dcm2niix.exe` / `dcm2nii_all.py`)
+2. **Initial reorientation** (`spm_auto_reorient.m` -> `Reorient.m`)
+3. **MRI -> MNI / PET -> MRI, output wr*** (`batch_coregister_*`, `batch_norm_MRI_only.m`)
+4. **CAT12 segmentation** to generate `p0*` (brain mask) and `y*` (deformation field to MNI space)
+5. **MRI & PET skull stripping**, using either:
+   - SPM: `PET_batch_skull_separation.m`
+   - Python: `skull_separation.py`
+6. **Smoothing**: PET with `PET_Smooth.m` (6 mm); choose 2 mm/4 mm for MRI as needed.
+7. **Intensity normalization & resizing**: `adaptive_normal.py` -> `resize.py`
+8. **Quality control**: `QC.py`, `QC_Check.py`, `qc_pet_mri.py`
 
 ---
 
 ## 8. FAQ
 
-- **MATLAB vs. Python 结果能混用吗？**  
-  可以，只要确保空间对齐和数据类型一致。Python 阶段可读 `.nii`/`.nii.gz` 任意格式。  
+- **Can MATLAB and Python results be mixed?**
+  Yes, as long as spatial alignment and data types are consistent. The Python stage can read either `.nii` or `.nii.gz` files.
 
-- **为什么同时保留两套脚本？**  
-  - SPM 对 **空间变换** 更稳健，批量脚本方便可视化。  
-  - Python 在 **形态学清洗 / GPU 推理** 更灵活，服务器无需 MATLAB 许可。  
+- **Why keep two sets of scripts?**
+  - SPM is more robust for **spatial transformations**, and its batch scripts are convenient for visualization.
+  - Python is more flexible for **morphological cleanup / GPU inference**, and servers do not require a MATLAB license.
 
-- **如何确定脚本运行顺序？**  
-  见“推荐完整工作链”，亦可按自身实验设计增删步骤。  
+- **How should I determine the script execution order?**
+  See the "Recommended Workflow" section. Steps can also be added or removed according to the experimental design.
 
 ---
-

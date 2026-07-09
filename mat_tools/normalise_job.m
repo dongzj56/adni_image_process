@@ -1,5 +1,5 @@
 function normalise_job(def,source,interp,outputPrefix,verbose)
-    bb = [-90 -126 -72; % 左 侧右 下
+    bb = [-90 -126 -72; % Bounding box lower corner.
         90 90 108]; % Bounding box
     % bb = [-78 -112  -70;
     %         78   76   85]; % Bounding box
@@ -22,7 +22,7 @@ function normalise_job(def,source,interp,outputPrefix,verbose)
     matlabbatch{1}.spm.spatial.normalise.write.woptions.prefix = outputPrefix;
 
     if verbose
-        spm_jobman('run', matlabbatch); % 执行配准任务
+        spm_jobman('run', matlabbatch); % Run the registration job.
     else
         evalc('spm_jobman(''run'', matlabbatch);');
     end

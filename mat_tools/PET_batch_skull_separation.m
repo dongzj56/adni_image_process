@@ -1,48 +1,48 @@
 % PET_skull_separation_batch.m
-% 一键批量对 PET（wr*）影像做头骨去除（基于对应 MRI 掩膜 wm*）
-% 依赖：SPM12
+% Batch skull-strip PET (wr*) images using the corresponding MRI mask (wm*).
+% Dependency: SPM12.
 
-%% 0. —— 配置区 —— 
-petDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\01PET配准\MNI_2mm';         % PET 影像文件夹（前缀 wr）
-mriDir = 'F:\ADNI数据集902样本\05-MRI头骨分离\p0original\01配准至MNI\2mm';         % MRI 掩膜文件夹（前缀 wm）
-outDir = 'F:\ADNI数据集902样本\06-PET配准_去头骨_平滑\02PET去头骨\MNI_2mm';  % 去骨后结果输出目录
+%% 0. Configuration.
+petDir = 'F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\01PET_registered\MNI_2mm';         % PET image folder (wr prefix).
+mriDir = 'F:\ADNI_dataset_902_samples\05-MRI_skull_stripping\p0original\01registered_to_MNI\2mm';         % MRI mask folder (wm prefix).
+outDir = 'F:\ADNI_dataset_902_samples\06-PET_registration_skull_stripping_smoothing\02PET_skull_stripped\MNI_2mm';  % Output directory after skull stripping.
 
 if ~exist(outDir,'dir')
     mkdir(outDir);
 end
 
-%% 1. 初始化 SPM PET 环境
+%% 1. Initialize the SPM PET environment.
 spm('defaults','PET');
 spm_jobman('initcfg');
 
-%% 2. 扫描所有 PET 文件（wr*.nii）
+%% 2. Scan all PET files (wr*.nii).
 petList = dir(fullfile(petDir,'wr*.nii'));
 
 for i = 1:numel(petList)
     petName = petList(i).name;
     [~, baseName] = fileparts(petName);
     
-    % —— 提取受试者 ID —— 
+    % Extract subject ID.
     % wr002_S_2043.nii -> subjID = '002_S_2043'
     subjID = baseName(3:end);
     
-    % —— 在 MRI 文件夹里匹配掩膜 wm 文件 —— 
+    % Match the wm mask file in the MRI folder.
     maskName = ['p0' subjID '.nii'];
     wmPath   = fullfile(mriDir, maskName);
     if ~exist(wmPath, 'file')
-        warning('未找到掩膜文件 %s，跳过 %s', maskName, petName);
+        warning('Mask file %s not found, skipped %s', maskName, petName);
         continue;
     end
     
-    %% 3. 构建 SPM 批处理
+    %% 3. Build the SPM batch.
     matlabbatch = {};
     matlabbatch{1}.spm.util.imcalc.input = {
-        [wmPath      ',1']   % i1: MRI 掩膜
-        [fullfile(petDir, petName) ',1']   % i2: PET 图像
+        [wmPath      ',1']   % i1: MRI mask.
+        [fullfile(petDir, petName) ',1']   % i2: PET image.
     };
     matlabbatch{1}.spm.util.imcalc.output  = ['skullfree_' baseName];
     matlabbatch{1}.spm.util.imcalc.outdir  = { outDir };
-    % 核心表达式：PET 图像乘以掩膜（wm>0）区域 :contentReference[oaicite:0]{index=0}
+    % Core expression: multiply the PET image by the mask region (wm > 0).
     matlabbatch{1}.spm.util.imcalc.expression = 'i2.*(i1>0)';
     matlabbatch{1}.spm.util.imcalc.var        = struct('name', {}, 'value', {});
     matlabbatch{1}.spm.util.imcalc.options.dmtx   = 0;
@@ -50,10 +50,10 @@ for i = 1:numel(petList)
     matlabbatch{1}.spm.util.imcalc.options.interp = 1;
     matlabbatch{1}.spm.util.imcalc.options.dtype  = 4;
     
-    %% 4. 运行并报告
+    %% 4. Run and report.
     spm_jobman('run', matlabbatch);
-    fprintf('✓ 已完成 %s 的头骨去除，结果：%s\\skullfree_%s.nii\n', ...
+    fprintf('Skull stripping complete for %s. Result: %s\\skullfree_%s.nii\n', ...
         petName, outDir, baseName);
 end
 
-fprintf('所有 PET 头骨去除处理完毕，共扫描 %d 个 wr* 文件。\n', numel(petList));
+fprintf('All PET skull-stripping processing is complete. Scanned %d wr* files.\n', numel(petList));

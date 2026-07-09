@@ -1,56 +1,56 @@
-'''重采样，设置固定大小和体素'''
+'''Resample images to a fixed size and voxel spacing.'''
 import os
 import SimpleITK as sitk
 
 def resample_image(input_path, output_dir, target_size=(96, 112, 96), target_spacing=(2, 2, 2)):
     """
-    重采样医学影像到指定尺寸和体素大小
-    :param input_path: 输入影像路径（支持.nii/.nii.gz）
-    :param output_dir: 输出目录
-    :param target_size: 目标尺寸 (depth, height, width)
-    :param target_spacing: 目标体素大小 (z, y, x) 单位：毫米
+    Resample a medical image to the specified size and voxel spacing.
+    :param input_path: Input image path, supporting .nii/.nii.gz.
+    :param output_dir: Output directory.
+    :param target_size: Target size (depth, height, width).
+    :param target_spacing: Target voxel spacing (z, y, x), in millimeters.
     """
-    # 读取影像
+    # Read the image.
     image = sitk.ReadImage(input_path)
     
-    # 计算重采样参数
+    # Configure resampling parameters.
     resampler = sitk.ResampleImageFilter()
     resampler.SetSize(target_size)
     resampler.SetOutputSpacing(target_spacing)
     resampler.SetOutputDirection(image.GetDirection())
     resampler.SetOutputOrigin(image.GetOrigin())
     resampler.SetTransform(sitk.Transform())
-    resampler.SetInterpolator(sitk.sitkLinear)  # 使用线性插值
+    resampler.SetInterpolator(sitk.sitkLinear)  # Use linear interpolation.
     
-    # 执行重采样
+    # Run resampling.
     resampled_image = resampler.Execute(image)
     
-    # 保存结果
+    # Save the result.
     filename = os.path.basename(input_path)
     output_path = os.path.join(output_dir, filename)
     sitk.WriteImage(resampled_image, output_path)
     print(f"Saved resampled image to: {output_path}")
 
-# 使用示例
+# Example.
 if __name__ == "__main__":
-    # 输入路径和输出路径（替换为实际路径）
+    # Input and output paths. Replace these with actual paths.
     mri_dir = rf"C:\Users\dongz\Desktop\resize"
     # pet_dir = rf"C:\Users\dongz\Desktop\adni_dataset\PET"
-    output_mri_dir = rf"C:\Users\dongz\Desktop\resize\out"  # MRI输出目录
-    # output_pet_dir = rf"C:\Users\dongz\Desktop\adni_dataset\PET"  # PET输出目录
+    output_mri_dir = rf"C:\Users\dongz\Desktop\resize\out"  # MRI output directory.
+    # output_pet_dir = rf"C:\Users\dongz\Desktop\adni_dataset\PET"  # PET output directory.
     
-    # 创建输出目录
+    # Create output directories.
     os.makedirs(output_mri_dir, exist_ok=True)
     # os.makedirs(output_pet_dir, exist_ok=True)
     
-    # 处理MRI影像，保存到output_mri_dir
+    # Process MRI images and save them to output_mri_dir.
     for filename in os.listdir(mri_dir):
         if filename.endswith(('.nii', '.nii.gz')):
             input_path = os.path.join(mri_dir, filename)
-            resample_image(input_path, output_mri_dir)  # 指定MRI输出目录
+            resample_image(input_path, output_mri_dir)  # Specify the MRI output directory.
     
-    # # 处理PET影像，保存到output_pet_dir
+    # # Process PET images and save them to output_pet_dir.
     # for filename in os.listdir(pet_dir):
     #     if filename.endswith(('.nii', '.nii.gz')):
     #         input_path = os.path.join(pet_dir, filename)
-    #         resample_image(input_path, output_pet_dir)  # 指定PET输出目录
+    #         resample_image(input_path, output_pet_dir)  # Specify the PET output directory.

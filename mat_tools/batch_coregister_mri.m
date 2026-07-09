@@ -1,16 +1,16 @@
-% 报错取消下面注释重试（自动将spm路径加入预设路径），出现有关list的错误请重新添加spm路径，或取消注释下面的行
-%或者在命令行输入spm，再重试
-% spm('Defaults', 'fMRI'AAL);        % 设置SPM默认参数
-% spm_jobman('initcfg');          % 初始化作业管理器
+% If an error occurs, uncomment the lines below to add SPM to the path and retry.
+% You can also type spm in the command window and retry.
+% spm('Defaults', 'fMRI'AAL);        % Set SPM defaults.
+% spm_jobman('initcfg');          % Initialize the job manager.
 % MRI => MNI
 % PET => MRI,PET => ROI
-MNI = 'E:\ADNI数据集902样本\AAL模板\AAL3v2_for_SPM12\AAL3\AAL3v1_1mm.nii';
-MRI = 'E:\ADNI数据集902样本\05-mask处理后全脑图像\MRI_MNI_1mm-normal';  
+MNI = 'E:\ADNI_dataset_902_samples\AAL_template\AAL3v2_for_SPM12\AAL3\AAL3v1_1mm.nii';
+MRI = 'E:\ADNI_dataset_902_samples\05-mask_processed_whole_brain\MRI_MNI_1mm-normal';  
 
-outputPrefix = 'r'; % 是已经完成的文件前缀
-verbose = 0; % 打印SPM输出，检查出错
+outputPrefix = 'r'; % Prefix for completed files.
+verbose = 0; % Print SPM output for error checking.
 
-% 去除PS打印警告，如果你启动了SPM的Graphic,取消注释去除警告，否则不要这么做
+% Suppress PS print warnings if SPM graphics are enabled.
 % print('-dpdf', 'output.pdf');
 
 %run
@@ -19,7 +19,7 @@ batch_coregiter_job(MNI,MRI,outputPrefix,verbose);
 function batch_coregiter_job(MNI,MRI,outputPrefix,verbose,interp)
     if nargin<5 interp = 4; end
 
-    % 获取每个目录下的非 r 开头的 .nii 文件
+    % Get .nii files that do not start with the output prefix.
     mni = [MNI,',1'];
     %%
     MRI_files = dir(fullfile(MRI, '*.nii'));
@@ -43,7 +43,7 @@ function batch_coregiter_job(MNI,MRI,outputPrefix,verbose,interp)
     for i = 1:numel(MRI_files)
         m = fullfile(MRI, MRI_files(i).name);
         % copyfile(m, tempFilePath);
-        coregister_job(mni,m, interp, outputPrefix,verbose); % 将 MRI 配准到 MNI
+        coregister_job(mni,m, interp, outputPrefix,verbose); % Register MRI to MNI.
         % movefile(rtempFilePath,fullfile(MRI,[outputPrefix,MRI_files(i).name])); 
         fprintf('Done(All): %d(%d),Processing... \n',i,numel(MRI_files)); 
     end

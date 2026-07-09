@@ -1,11 +1,11 @@
-'''重采样前后数据质量检查'''
+'''Data quality checks before and after resampling.'''
 import os
 import numpy as np
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 
 def check_image_properties(image_path):
-    """检查影像元数据"""
+    """Check image metadata."""
     image = sitk.ReadImage(image_path)
     print(f"File: {os.path.basename(image_path)}")
     print(f"Origin: {image.GetOrigin()}")
@@ -14,39 +14,39 @@ def check_image_properties(image_path):
     print(f"Size: {image.GetSize()}\n")
 
 def check_data_integrity(original_path, resampled_path):
-    """检测重采样后数据完整性"""
-    # 读取原始和重采样影像
+    """Check data integrity after resampling."""
+    # Read the original and resampled images.
     img_orig = sitk.ReadImage(original_path)
     img_resampled = sitk.ReadImage(resampled_path)
     
-    # 转换为NumPy数组
+    # Convert to NumPy arrays.
     arr_orig = sitk.GetArrayFromImage(img_orig)
     arr_resampled = sitk.GetArrayFromImage(img_resampled)
     
     # ---------------------------
-    # 1. 检查元数据一致性
+    # 1. Check metadata consistency.
     # ---------------------------
-    print("[元数据检查]")
-    print("原始影像 vs 重采样影像:")
-    print(f"- 方向矩阵一致性: {img_orig.GetDirection() == img_resampled.GetDirection()}")
-    print(f"- 原点一致性: {img_orig.GetOrigin() == img_resampled.GetOrigin()}")
+    print("[Metadata Check]")
+    print("Original image vs. resampled image:")
+    print(f"- Direction matrix consistency: {img_orig.GetDirection() == img_resampled.GetDirection()}")
+    print(f"- Origin consistency: {img_orig.GetOrigin() == img_resampled.GetOrigin()}")
     
     # ---------------------------
-    # 2. 统计信息检查
+    # 2. Statistical checks.
     # ---------------------------
-    print("\n[统计信息检查]")
-    print(f"原始影像像素范围: [{np.min(arr_orig)}, {np.max(arr_orig)}]")
-    print(f"重采样影像像素范围: [{np.min(arr_resampled)}, {np.max(arr_resampled)}]")
+    print("\n[Statistical Check]")
+    print(f"Original image pixel range: [{np.min(arr_orig)}, {np.max(arr_orig)}]")
+    print(f"Resampled image pixel range: [{np.min(arr_resampled)}, {np.max(arr_resampled)}]")
     
-    # 检测是否存在异常截断（如PET值全为0）
+    # Detect abnormal truncation, such as all-zero PET values.
     if np.max(arr_resampled) == 0:
-        print("警告: 重采样后图像像素值全为0，可能存在数据丢失！")
+        print("Warning: all resampled image pixel values are 0; data may have been lost.")
         
     # ---------------------------
-    # 3. 图像完整性检查（切片可视化）
+    # 3. Image-integrity check with slice visualization.
     # ---------------------------
-    print("\n[切片可视化检查]")
-    # 随机选取中间切片
+    print("\n[Slice Visualization Check]")
+    # Select the middle slice.
     slice_idx = arr_resampled.shape[0] // 2
     
     plt.figure(figsize=(12, 6))
@@ -61,18 +61,18 @@ def check_data_integrity(original_path, resampled_path):
     plt.show()
     
     # ---------------------------
-    # 4. 模态对齐检查（仅限多模态数据）
+    # 4. Modality-alignment check for multimodal data only.
     # ---------------------------
-    # 如果需要检查MRI和PET对齐，需读取两种模态影像
-    # 此处示例假设已有配准后的MRI和PET
-    # 可通过检查空间参数或计算互信息验证对齐
+    # To check MRI-PET alignment, read both modalities.
+    # This example assumes registered MRI and PET are already available.
+    # Alignment can be verified by checking spatial parameters or computing mutual information.
 
 def main():
-    # 原始和重采样影像路径
+    # Original and resampled image paths.
     original_mri_path = rf"C:\Users\dongz\Desktop\adni_dataset\MRI\002_S_2010.nii"
     resampled_mri_path = rf"C:\Users\dongz\Desktop\adni_dataset\MRI-1\002_S_2010.nii"
     
-    # 执行检查
+    # Run checks.
     check_image_properties(original_mri_path)
     check_image_properties(resampled_mri_path)
     check_data_integrity(original_mri_path, resampled_mri_path)
